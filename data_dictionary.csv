@@ -1,0 +1,54 @@
+variable,level,type,role,notes
+participant_id,participant,text,anonymous linkage,Random browser-generated ID; no PII
+study_version,participant,text,metadata,Saved from config.js
+condition_order,participant,categorical,experimental metadata,music_then_silence or silence_then_music
+form_order,participant,categorical,experimental metadata,A_then_B or B_then_A
+age,participant,categorical,descriptive/covariate,13-18+ or prefer not
+grade,participant,categorical,descriptive,"9-12, other, prefer not"
+gender,participant,categorical,optional descriptive,Can be removed before launch
+sleep_hours,participant,numeric,possible sensitivity covariate,Typical school-night hours
+music_training,participant,categorical,descriptive,Years of regular music participation
+study_music_frequency,participant,ordinal,exploratory,1 never to 5 almost always
+phq8_1..phq8_8,participant,integer,predictor items,0-3; PHQ-8 only
+phq8_total,participant,integer,secondary predictor,0-24; do not show participant interpretation
+gad7_1..gad7_7,participant,integer,predictor items,0-3
+gad7_total,participant,integer,secondary predictor,0-21; do not show participant interpretation
+music_motive_1..music_motive_8,participant,integer,exploratory items,0-4 original study-specific items; not validated scale
+music_motive_mean,participant,numeric,exploratory summary,Do not label as validated scale score
+music_top_reason,participant,categorical,descriptive,Optional main reason
+music_lyrics,participant,categorical,exploratory,instrumental / lyrics understood / lyrics not understood / mixed
+music_genre,participant,categorical,descriptive,Do not make primary hypothesis
+music_familiarity,participant,integer,exploratory,1-5
+music_liking,participant,integer,exploratory,1-5
+music_energy,participant,integer,exploratory,1-5 perceived
+music_valence,participant,integer,exploratory,1-5 perceived
+typical_study_music,participant,categorical,exploratory,How typical selection is for studying
+music_dprime,participant,numeric,primary condition outcome,Log-linear corrected d-prime
+silence_dprime,participant,numeric,primary condition outcome,Log-linear corrected d-prime
+music_minus_silence_dprime,participant,numeric,primary effect score,Positive means higher discrimination in music condition
+music_accuracy,participant,numeric,secondary condition outcome,0-1
+silence_accuracy,participant,numeric,secondary condition outcome,0-1
+music_median_hit_rt_ms,participant,numeric,secondary outcome,Median RT on correct target detections
+silence_median_hit_rt_ms,participant,numeric,secondary outcome,Median RT on correct target detections
+perceived_music_distraction,participant,integer,exploratory,1-7
+perceived_music_help,participant,integer,exploratory,1-7
+music_volume,participant,integer,QC/descriptive,1-5 perceived volume
+interruptions,participant,categorical,QC,"0,1,2,3+"
+environment_distraction,participant,integer,QC,1-7
+headphones,participant,binary,QC,yes/no
+technical_issue,participant,binary,QC,yes/no
+condition,trial,categorical,task,music or silence
+form,trial,categorical,task,A or B
+trial,trial,integer,task,Trial index
+letter,trial,text,task,Stimulus letter
+target,trial,binary,task,1 = 2-back target
+pressed,trial,binary,task,1 = M pressed
+correct,trial,binary,scoring,1 correct
+hit,trial,binary,scoring,Correct response on target
+miss,trial,binary,scoring,Target without response
+false_alarm,trial,binary,scoring,Response on non-target
+rt_ms,trial,numeric,secondary scoring,Milliseconds from stimulus onset; blank if no press
+parent_permission_confirmed,TRUE when the parent/legal guardian checkbox was completed before the student entered the study.,,,
+parent_permission_method,Records the permission method; current value is parent_guardian_checkbox.,,,
+parent_permission_at,ISO timestamp recorded when the parent/guardian permission gate was completed.,,,
+student_assent,TRUE when the student agreed to participate on the assent page.,,,

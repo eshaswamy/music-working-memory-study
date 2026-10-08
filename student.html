@@ -12,47 +12,44 @@
     <div class="study-card">
       <div class="topline">
         <span class="pill">Independent student research</span>
-        <span id="progressText" class="progress-text">Step 1 of 12</span>
+        <span id="progressText" class="progress-text">Step 1 of 11</span>
       </div>
       <div class="progress-track" aria-hidden="true"><div id="progressBar"></div></div>
 
       <section class="page active" data-page="0">
-        <h1>Music, Mood & Working Memory</h1>
-        <p class="lede">This study looks at how self-selected music relates to performance on a short working-memory task in high-school students.</p>
-        <div class="notice">
-          <strong>Before you begin</strong>
-          <p>Please use a laptop or desktop with a physical keyboard, have headphones or earbuds available, and choose a quiet place where you are unlikely to be interrupted for about 20–25 minutes.</p>
+        <h1>Music, Mood &amp; Working Memory</h1>
+        <h2>Informed Consent</h2>
+        <div class="prose-box">
+          <h3>What is this study about?</h3>
+          <p>This research study examines how listening to self-selected music, compared with silence, relates to working-memory performance in high-school students. It also examines whether differences in mood, anxiety, music-listening habits, and reasons for listening to music are associated with differences in how students perform with music.</p>
+          <h3>What will I do?</h3>
+          <p>If you participate, you will:</p>
+          <ul><li>Answer basic questions about yourself, such as your age, grade, typical sleep, music experience, and study-music habits.</li><li>Answer short questionnaires about your recent mood and anxiety.</li><li>Answer questions about why you listen to music.</li><li>Choose music that you enjoy and might normally listen to while doing something that requires concentration.</li><li>Complete a short practice working-memory task.</li><li>Complete two 2-back working-memory blocks: one while listening to your self-selected music and one in silence.</li><li>Answer a few questions about your experience during the tasks.</li></ul>
+          <p>The entire study should take approximately 20–25 minutes.</p>
+          <h3>Are there any risks or discomforts?</h3>
+          <p>This study involves minimal anticipated risk. Some questionnaire items ask about mood, worry, sleep, concentration, and energy and may feel personal or uncomfortable. If something in the study makes you uncomfortable or you would like support, consider talking with a healthcare professional or trusted adult.</p>
+          <h3>Are there any benefits?</h3>
+          <p>You may not personally benefit from participating. The results may help researchers better understand how self-selected music relates to concentration and working-memory performance in adolescents and why music may affect different students differently.</p>
+          <h3>Is participation required?</h3>
+          <p>Participation is completely voluntary. You may stop at any point before submitting your responses without penalty.</p>
+          <h3>What information will be collected?</h3>
+          <p>The study collects information including demographics (i.e. age and grade), music experience, mental health, and working memory. The mood and anxiety questionnaires in this study are being used for research purposes only. They do not provide a medical diagnosis.</p>
+          <p>This survey is anonymous and does not ask for your personal information. Research responses will be stored in a password-protected Google account.</p>
+          <h3>Questions about this research can be directed to:</h3>
+          <p>Esha Swamy<br/> <a href="mailto:eshaswamy@icloud.com">eshaswamy@icloud.com</a></p>
         </div>
-        <div class="field">
-          <label for="permissionCode">Parent/guardian permission code</label>
-          <input id="permissionCode" autocomplete="off" maxlength="24" placeholder="Enter the code provided after permission" />
-          <small>This code is checked separately and is not saved with your research responses.</small>
-        </div>
-        <div class="field checkline">
-          <input type="checkbox" id="deviceConfirm" />
-          <label for="deviceConfirm">I am using a laptop or desktop with a physical keyboard.</label>
-        </div>
-        <div class="actions"><button class="primary" data-action="validate-access">Continue</button></div>
+        <h2>Parent/Guardian Permission</h2>
+        <p>This section should be completed by the student's parent or legal guardian.</p>
+        <div class="field checkline"><input type="checkbox" id="parentPermission" /><label for="parentPermission">I am the parent or legal guardian of the student who will participate. I have read the study information above, have had the opportunity to consider the information, and give permission for my child to participate in this research study.</label></div>
+        <h2>Student Assent</h2>
+        <p>This section should be completed by the student who will participate.</p>
+        <div class="field checkline"><input type="checkbox" id="assent" /><label for="assent">I have read the study information above. I understand what I will be asked to do, understand that participation is voluntary, and agree to participate in this research study.</label></div>
+        <div class="field checkline"><input type="checkbox" id="deviceConfirm" /><label for="deviceConfirm">I am using a laptop or desktop with a physical keyboard.</label></div>
+        <div class="actions"><button class="primary" data-action="begin-study">Continue to Study</button></div>
         <p class="status" id="accessStatus" aria-live="polite"></p>
       </section>
 
       <section class="page" data-page="1">
-        <h2>Study information & assent</h2>
-        <div class="prose-box">
-          <p>You are invited to take part in an independent student research study about music, mood, anxiety, and working memory. Participation is voluntary. You may stop at any time without penalty.</p>
-          <p>You will answer short questions about your recent mood and anxiety, your music-listening habits, and basic demographics. You will also complete two short 2-back working-memory blocks: one while listening to self-selected music and one in silence.</p>
-          <p>The questionnaires are research measures, not diagnoses. Your individual depression or anxiety scores will not be shown to you. Research responses are stored without your name, email address, exact birth date, student ID, or school name.</p>
-          <p>Some questions ask about sadness, worry, sleep, concentration, and energy. If a question makes you uncomfortable, you may stop the study. If you would like support, talk with a parent/guardian, school counselor, healthcare professional, or another trusted adult.</p>
-          <p><strong>Research contact:</strong> <a href="mailto:eshaswamy@icloud.com">Esha Swamy (eshaswamy@icloud.com)</a></p><p><strong>Data and withdrawal:</strong> You may stop at any time before the final submission without penalty. Your research answers are sent only when you select <em>Submit study</em> at the end. The research dataset does not include your name, email, school name, exact birth date, or student ID. Because submitted responses are anonymous and are not linked to your parent/guardian permission record, a specific research response generally cannot be identified and removed after submission. Results will be reported only in summary or aggregate form. Research data will be stored in a password-protected Google account and deleted no later than one year after the project is completed.</p>
-        </div>
-        <div class="field checkline">
-          <input type="checkbox" id="assent" />
-          <label for="assent">I have read the information above, understand that participation is voluntary, and agree to participate.</label>
-        </div>
-        <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-next data-require="assent">I agree, continue</button></div>
-      </section>
-
-      <section class="page" data-page="2">
         <h2>About you</h2>
         <p class="subtle">Please do not enter your name or any identifying information.</p>
         <div class="grid2">
@@ -66,21 +63,21 @@
         <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-action="demo-next">Continue</button></div>
       </section>
 
-      <section class="page" data-page="3">
+      <section class="page" data-page="2">
         <h2>Recent mood</h2>
         <p>Over the <strong>last 2 weeks</strong>, how often have you been bothered by each of the following problems?</p>
         <div id="phqItems" class="scale-list"></div>
         <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-action="scale-next" data-scale="phq">Continue</button></div>
       </section>
 
-      <section class="page" data-page="4">
+      <section class="page" data-page="3">
         <h2>Recent anxiety</h2>
         <p>Over the <strong>last 2 weeks</strong>, how often have you been bothered by the following problems?</p>
         <div id="gadItems" class="scale-list"></div>
         <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-action="scale-next" data-scale="gad">Continue</button></div>
       </section>
 
-      <section class="page" data-page="5">
+      <section class="page" data-page="4">
         <h2>Why you listen to music</h2>
         <div class="notice soft"><strong>Research note</strong><p>These items are an exploratory music-use section created for this study. They are <em>not</em> labeled as a validated clinical scale. If your mentor approves a licensed/validated music-motives scale, replace this section before launch.</p></div>
         <p>How often is each of the following a reason you choose to listen to music?</p>
@@ -91,7 +88,7 @@
         <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-action="scale-next" data-scale="motives">Continue</button></div>
       </section>
 
-      <section class="page" data-page="6">
+      <section class="page" data-page="5">
         <h2>Choose your music</h2>
         <p>Choose music you <strong>enjoy and would normally consider listening to while doing something that requires concentration</strong>, such as homework, reading, drawing, or another focused activity.</p>
         <div class="notice"><p>Have about 5 minutes of music ready. Do not enter a song title or artist. Start playback only when the study tells you to.</p></div>
@@ -107,7 +104,7 @@
         <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-action="music-next">Continue</button></div>
       </section>
 
-      <section class="page" data-page="7">
+      <section class="page" data-page="6">
         <h2>2-back practice</h2>
         <p>Letters will appear one at a time. Press the <kbd>M</kbd> key whenever the current letter is the same as the letter shown <strong>two letters earlier</strong>. If it does not match, do not press anything.</p>
         <div class="example"><span>A</span><span>B</span><span class="match">A</span><p>Press M on the third letter.</p></div>
@@ -115,7 +112,7 @@
         <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-action="practice">Start practice</button></div>
       </section>
 
-      <section class="page task-page" data-page="8">
+      <section class="page task-page" data-page="7">
         <div id="taskIntro">
           <h2 id="conditionTitle">Task block</h2>
           <div id="conditionInstructions" class="notice"></div>
@@ -128,14 +125,14 @@
         </div>
       </section>
 
-      <section class="page" data-page="9">
+      <section class="page" data-page="8">
         <h2>Short break</h2>
         <p>Your first task block is complete. Take about 30–60 seconds before continuing.</p>
         <div id="secondConditionPreview" class="notice"></div>
         <div class="actions"><button class="primary" data-action="second-condition">Continue to second block</button></div>
       </section>
 
-      <section class="page" data-page="10">
+      <section class="page" data-page="9">
         <h2>After the tasks</h2>
         <div class="grid2">
           <div class="field"><label for="musicDistract">How distracting did the music feel during the task?</label><input id="musicDistract" type="range" min="1" max="7" value="4" /><div class="range-labels"><span>Not at all</span><span>Extremely</span></div></div>
@@ -150,7 +147,7 @@
         <p class="status" id="submitStatus" aria-live="polite"></p>
       </section>
 
-      <section class="page" data-page="11">
+      <section class="page" data-page="10">
         <h2>Thank you</h2>
         <p>Your research responses have been submitted.</p>
         <div class="prose-box">

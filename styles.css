@@ -2,3 +2,5 @@
 .button-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 
 .handoff-box{margin-top:22px;padding:18px;border:2px solid var(--accent);border-radius:14px;background:#fff}.continue-large{display:block;width:100%;font-size:18px;padding:15px 20px;margin:16px 0}.handoff-box a{font-weight:700}
+
+.survey-link{display:inline-block;text-decoration:none;text-align:center;margin:10px 0 4px}.continue-large{font-size:18px;padding:14px 22px}.handoff-box{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
