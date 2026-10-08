@@ -8,12 +8,12 @@
 
   const phq = [
     "Little interest or pleasure in doing things",
-    "Feeling down, depressed, or hopeless",
+    "Feeling down, depressed, irritable or hopeless",
     "Trouble falling or staying asleep, or sleeping too much",
     "Feeling tired or having little energy",
     "Poor appetite or overeating",
     "Feeling bad about yourself — or that you are a failure or have let yourself or your family down",
-    "Trouble concentrating on things, such as reading or watching television",
+    "Trouble concentrating on things, such as school work, reading or watching television",
     "Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual"
   ];
   const gad = [
@@ -25,23 +25,11 @@
     "Becoming easily annoyed or irritable",
     "Feeling afraid as if something awful might happen"
   ];
-  const motives = [
-    "To relax or calm down",
-    "To improve or maintain my mood",
-    "To distract myself from stress or difficult feelings",
-    "To help me focus on schoolwork or another task",
-    "To feel understood or emotionally supported",
-    "To connect with friends or other people",
-    "To increase my energy or motivation",
-    "To think through or express my feelings"
-  ];
 
   const frequency4 = ["Not at all","Several days","More than half the days","Nearly every day"];
-  const motive5 = ["Never","Rarely","Sometimes","Often","Very often"];
 
   renderScale("phqItems","phq",phq,frequency4);
   renderScale("gadItems","gad",gad,frequency4);
-  renderScale("motiveItems","mot",motives,motive5);
   updateProgress();
 
   document.addEventListener("click", async e => {
@@ -56,9 +44,10 @@
     if(a==="begin-study") return beginStudy();
     if(a==="demo-next") return demographicsNext();
     if(a==="scale-next") return scaleNext(b.dataset.scale);
+    if(a==="motive-next") return motiveNext();
     if(a==="music-next") return musicNext();
     if(a==="practice") return runPractice();
-    if(a==="start-condition") return runCurrentCondition();
+
     if(a==="second-condition") return prepareCondition(1);
     if(a==="submit-study") return submitStudy();
   });
@@ -79,49 +68,77 @@
   }
 
   function demographicsNext(){
-    const req=["age","grade","sleepHours","musicTraining","studyMusicFreq"]; if(req.some(id=>!val(id))) return alert("Please answer the required questions before continuing.");
-    Object.assign(state.responses,{age:val("age"),grade:val("grade"),gender:val("gender"),sleep_hours:Number(val("sleepHours")),music_training:val("musicTraining"),study_music_frequency:Number(val("studyMusicFreq"))}); go(2);
+    const req=["age","grade","gender","sleepHours","musicTraining","musicHours","studyMusicFreq"]; if(req.some(id=>!val(id))) return alert("Please answer the required questions before continuing.");
+    if(Number(val("sleepHours"))<2 || Number(val("sleepHours"))>12) return alert("Sleep hours must be between 2 and 12.");
+    Object.assign(state.responses,{age:val("age"),grade:val("grade"),gender:val("gender"),sleep_hours:Number(val("sleepHours")),sleep_condition:val("sleepCondition"),music_training:val("musicTraining"),music_training_hours:Number(val("musicHours")),study_music_frequency:Number(val("studyMusicFreq"))}); go(2);
   }
 
   function scaleNext(which){
-    const prefix=which==="phq"?"phq":which==="gad"?"gad":"mot"; const count=which==="phq"?8:which==="gad"?7:8; const arr=[];
+    const prefix=which==="phq"?"phq":"gad"; const count=which==="phq"?8:7; const arr=[];
     for(let i=0;i<count;i++){ const q=document.querySelector(`input[name="${prefix}_${i}"]:checked`); if(!q) return alert("Please answer each item before continuing."); arr.push(Number(q.value)); }
     if(which==="phq"){state.responses.phq8_items=arr;state.responses.phq8_total=sum(arr);go(3)}
     else if(which==="gad"){state.responses.gad7_items=arr;state.responses.gad7_total=sum(arr);go(4)}
-    else {state.responses.music_motive_items=arr;state.responses.music_motive_mean=mean(arr);state.responses.music_top_reason=val("topReason");go(5)}
+
+  }
+
+  function motiveNext(){
+    if(!val("topReason")) return alert("Please select your main reason for listening to music.");
+    if(val("topReason")==="other" && !val("topReasonOther").trim()) return alert("Please specify your other reason.");
+    state.responses.music_top_reason=val("topReason"); state.responses.music_top_reason_other=val("topReason")==="other"?val("topReasonOther").trim():""; go(5);
   }
 
   function musicNext(){
     const req=["lyrics","genre","typicalStudyMusic"]; if(req.some(id=>!val(id))) return alert("Please answer the required music questions.");
-    Object.assign(state.responses,{music_lyrics:val("lyrics"),music_genre:val("genre"),music_familiarity:Number(val("familiarity")),music_liking:Number(val("liking")),music_energy:Number(val("energy")),music_valence:Number(val("valence")),typical_study_music:val("typicalStudyMusic")});go(6);
+    if(val("genre")==="Other / unsure" && !val("genreOther").trim()) return alert("Please specify the song for Other / unsure.");
+    Object.assign(state.responses,{music_genre_other:val("genre")==="Other / unsure"?val("genreOther").trim():"",music_lyrics:val("lyrics"),music_genre:val("genre"),music_familiarity:Number(val("familiarity")),music_liking:Number(val("liking")),music_energy:Number(val("energy")),music_valence:Number(val("valence")),typical_study_music:val("typicalStudyMusic")});go(6);
   }
 
+  let taskRunning=false;
   async function runPractice(){
-    go(7); document.getElementById("taskIntro").classList.add("hidden"); document.getElementById("taskArea").classList.remove("hidden"); document.getElementById("taskStatus").textContent="Practice: feedback will appear briefly.";
-    const seq=generateSequence(C.practiceTrials,.28,"P"); const result=await runNback(seq,{practice:true,condition:"practice",form:"P"});
-    document.getElementById("taskArea").classList.add("hidden"); document.getElementById("taskIntro").classList.remove("hidden");
-    const acc=Math.round(result.accuracy*100); document.getElementById("conditionTitle").textContent="Practice complete";
-    document.getElementById("conditionInstructions").innerHTML=`<p>You were correct on <strong>${acc}%</strong> of practice trials.</p><p>The scored study blocks begin next. No feedback will be shown during them.</p>`;
-    const b=document.querySelector('[data-action="start-condition"]'); b.textContent="Continue"; b.onclick=null; b.dataset.action=""; b.addEventListener("click",()=>prepareCondition(0),{once:true});
+    if(taskRunning) return;
+    taskRunning=true;
+    go(7); showTask();
+    try {
+      const seq=generateSequence(C.practiceTrials,.28,"P");
+      const result=await runNback(seq,{practice:true,condition:"practice",form:"P"});
+      hideTask();
+      document.getElementById("conditionTitle").textContent="Practice complete";
+      document.getElementById("conditionInstructions").innerHTML=`<p>Practice accuracy: <strong>${Math.round(result.accuracy*100)}%</strong>.</p><p>Next: two separate scored blocks. The order is randomized. Follow the music/silence instructions for each block. There is no feedback during scored trials.</p>`;
+      setBlockButton("Continue to block 1",()=>prepareCondition(0));
+    } finally {taskRunning=false;}
   }
-
+  function showTask(){document.getElementById("taskIntro").classList.add("hidden");document.getElementById("taskArea").classList.remove("hidden");}
+  function hideTask(){document.getElementById("taskArea").classList.add("hidden");document.getElementById("taskIntro").classList.remove("hidden");}
+  function setBlockButton(label,callback){
+    const b=document.getElementById("blockStartButton");
+    b.textContent=label;
+    b.onclick=callback;
+  }
   function prepareCondition(index){
-    state.currentIndex=index; const condition=order[index]; go(7); document.getElementById("taskArea").classList.add("hidden"); document.getElementById("taskIntro").classList.remove("hidden");
-    document.getElementById("conditionTitle").textContent=`Block ${index+1} of 2`;
-    document.getElementById("conditionInstructions").innerHTML= condition==="music" ? `<strong>Music condition</strong><p>Put on your headphones/earbuds and start the music you selected. Keep the volume at a comfortable level similar to what you would normally use. Do not change tracks or switch windows during the memory task.</p><p>After you click “Start 30-second music lead-in,” listen for 30 seconds. The 2-back will then begin automatically.</p>` : `<strong>Silence condition</strong><p>Keep your headphones/earbuds on, but pause all audio. Make sure no music, videos, or other audio is playing.</p><p>The task will begin after a short countdown.</p>`;
-    const b=document.querySelector('[data-action="start-condition"]'); b.dataset.action="start-condition"; b.textContent=condition==="music"?"Start 30-second music lead-in":"Start silence block";
+    state.currentIndex=index;const condition=order[index];go(7);hideTask();
+    document.getElementById("conditionTitle").textContent=`Block ${index+1} of 2 — ${condition==="music"?"Music":"Silence"}`;
+    document.getElementById("conditionInstructions").innerHTML=condition==="music"
+      ? `<p><strong>Start playing your chosen music now</strong> on your usual player. Return to this tab and keep the music playing. Wear headphones/earbuds at a comfortable volume.</p><p>After pressing the button below, there will be a 30-second music lead-in, followed by the letter task. Do not pause music until this block ends.</p>`
+      : `<p><strong>Pause all music and other audio now.</strong> Keep your headphones/earbuds on. After pressing the button below, there will be a short countdown, then the letter task.</p>`;
+    setBlockButton(condition==="music"?"Music is playing — begin lead-in":"Audio is paused — begin block",()=>runCurrentCondition());
   }
-
   async function runCurrentCondition(){
-    const index=state.currentIndex, condition=order[index], form=forms[index]; document.getElementById("taskIntro").classList.add("hidden"); document.getElementById("taskArea").classList.remove("hidden");
-    if(condition==="music"){ for(let s=30;s>0;s--){document.getElementById("taskStatus").textContent=`Music lead-in: ${s} seconds`; await sleep(1000);} }
-    else {document.getElementById("taskStatus").textContent="Get ready…"; await sleep(2500);}
-    const seq=generateSequence(C.testTrials,C.targetRate,form); const result=await runNback(seq,{practice:false,condition,form}); state.nback[condition]=result;
-    document.getElementById("taskArea").classList.add("hidden");
-    if(index===0){ go(8); const next=order[1]; document.getElementById("secondConditionPreview").innerHTML=next==="music"?"Your next block will be completed <strong>with your selected music</strong>. Keep it ready.":"Your next block will be completed <strong>in silence</strong>."; }
-    else go(9);
+    if(taskRunning)return;taskRunning=true;
+    const index=state.currentIndex,condition=order[index],form=forms[index];showTask();
+    try {
+      document.getElementById("stimulus").textContent="+";
+      if(condition==="music"){
+        for(let s=30;s>0;s--){document.getElementById("taskStatus").textContent=`Music lead-in: ${s}s`;await sleep(1000);}
+      } else {document.getElementById("taskStatus").textContent="Starting silence block…";await sleep(2500);}
+      const seq=generateSequence(C.testTrials,C.targetRate,form);
+      state.nback[condition]=await runNback(seq,{practice:false,condition,form});
+      hideTask();
+      if(index===0){
+        go(8);const next=order[1];
+        document.getElementById("secondConditionPreview").innerHTML=`<p><strong>Block 1 finished.</strong> ${condition==="music"?"Pause your music now.":"Remain in silence for the break."}</p><p>Block 2 will be <strong>${next==="music"?"with your selected music":"in silence"}</strong>. The next screen will tell you when to start or pause playback.</p>`;
+      } else {go(9);}
+    } finally {taskRunning=false;}
   }
-
   function generateSequence(n,targetRate,form){
     const letters=(form==="B"?["F","H","J","K","L","N","P","R","T","V","X","Z"]:["B","C","D","G","M","Q","S","W","Y","F","K","R"]);
     const eligible=Array.from({length:Math.max(0,n-2)},(_,i)=>i+2);
@@ -140,15 +157,15 @@
 
   async function runNback(seq,{practice,condition,form}){
     const stim=document.getElementById("stimulus"), status=document.getElementById("taskStatus"); const rows=[]; let pressed=false, pressAt=null, accept=false, trialStart=0;
-    const keyHandler=e=>{ if(!accept||pressed||e.repeat)return; if(e.key.toLowerCase()==="m"){pressed=true;pressAt=performance.now();} };
+    const keyHandler=e=>{ if(!accept||pressed||e.repeat||e.key.toLowerCase()!=="m")return; e.preventDefault(); pressed=true;pressAt=performance.now(); };
     window.addEventListener("keydown",keyHandler);
-    status.textContent=practice?"Practice":"Respond to 2-back matches"; stim.textContent="+"; await sleep(1200);
+    status.textContent=practice?"Practice — press M for a match":"Press M for a 2-back match"; stim.textContent="+"; await sleep(1200);
     for(let i=0;i<seq.length;i++){
-      pressed=false;pressAt=null;accept=true;trialStart=performance.now(); stim.textContent=seq[i].letter;
+      pressed=false;pressAt=null;accept=true;trialStart=performance.now(); stim.textContent=seq[i].letter; document.getElementById("trialProgress").textContent=`${practice?"Practice":condition==="music"?"Music block":"Silence block"}: letter ${i+1} of ${seq.length}`;
       await sleep(C.stimulusMs); stim.textContent="+"; await sleep(Math.max(0,C.trialMs-C.stimulusMs)); accept=false;
       const target=seq[i].target, hit=target&&pressed, miss=target&&!pressed, fa=!target&&pressed, correct=hit||(!target&&!pressed), rt=pressed?Math.round(pressAt-trialStart):null;
       const row={participant_id:participantId,condition,form,trial:i+1,letter:seq[i].letter,target:Number(target),pressed:Number(pressed),correct:Number(correct),hit:Number(hit),miss:Number(miss),false_alarm:Number(fa),rt_ms:rt}; rows.push(row); if(!practice)state.trials.push(row);
-      if(practice){status.textContent=correct?"Correct":"Not quite";status.className=`task-status ${correct?"flash-good":"flash-bad"}`;await sleep(250);status.className="task-status";status.textContent="Practice";}
+      if(practice){status.textContent=correct?"Correct":"Not quite";status.className=`task-status ${correct?"flash-good":"flash-bad"}`;await sleep(250);status.className="task-status";status.textContent="Practice — press M for a match";}
     }
     window.removeEventListener("keydown",keyHandler); stim.textContent="✓"; await sleep(500); return summarize(rows);
   }

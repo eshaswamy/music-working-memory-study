@@ -11,5 +11,5 @@ window.STUDY_CONFIG = {
   preBlockMusicMs: 30000,
 
   // Human-readable study version saved with every row.
-  STUDY_VERSION: "music-wm-v1.2"
+  STUDY_VERSION: "music-wm-v1.3"
 };

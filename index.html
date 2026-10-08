@@ -53,12 +53,12 @@
         <h2>About you</h2>
         <p class="subtle">Please do not enter your name or any identifying information.</p>
         <div class="grid2">
-          <div class="field"><label for="age">Age</label><select id="age"><option value="">Choose…</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option value="18+">18 or older</option><option value="prefer_not">Prefer not to answer</option></select></div>
-          <div class="field"><label for="grade">Grade</label><select id="grade"><option value="">Choose…</option><option value="9">9th</option><option value="10">10th</option><option value="11">11th</option><option value="12">12th</option><option value="other">Other</option><option value="prefer_not">Prefer not to answer</option></select></div>
-          <div class="field"><label for="gender">Gender <span class="optional">optional</span></label><select id="gender"><option value="">Choose…</option><option value="girl">Girl / female</option><option value="boy">Boy / male</option><option value="nonbinary">Nonbinary</option><option value="another">Another description</option><option value="prefer_not">Prefer not to answer</option></select></div>
-          <div class="field"><label for="sleepHours">Typical sleep on a school night</label><input id="sleepHours" type="number" min="2" max="14" step="0.5" placeholder="e.g., 7.5" /></div>
-          <div class="field"><label for="musicTraining">Years of regular music training/participation</label><select id="musicTraining"><option value="">Choose…</option><option value="0">None</option><option value="lt1">Less than 1 year</option><option value="1-3">1–3 years</option><option value="4-6">4–6 years</option><option value="7+">7+ years</option></select></div>
-          <div class="field"><label for="studyMusicFreq">How often do you listen to music while studying or doing homework?</label><select id="studyMusicFreq"><option value="">Choose…</option><option value="1">Never</option><option value="2">Rarely</option><option value="3">Sometimes</option><option value="4">Often</option><option value="5">Almost always</option></select></div>
+          <div class="field"><label for="age">Age</label><select id="age"><option value="">Choose…</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option >18</option><option>19</option></select></div>
+          <div class="field"><label for="grade">Grade</label><select id="grade"><option value="">Choose…</option><option value="9">9th</option><option value="10">10th</option><option value="11">11th</option><option value="12">12th</option></select></div>
+          <div class="field"><label for="gender">Sex</label><select id="gender"><option value="">Choose…</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+          <div class="field"><label for="sleepHours">Typical sleep on a school night</label><input id="sleepHours" type="number" min="2" max="12" step="0.5" placeholder="e.g., 7.5" /></div>
+          <div class="field"><label for="musicTraining">Years of regular music training/participation</label><select id="musicTraining"><option value="">Choose…</option><option value="0">None</option><option value="lt1">Less than 1 year</option><option value="1-3">1–3 years</option><option value="4+">4+ years</option></select></div>
+          <div class="field"><label for="sleepCondition">Have you been diagnosed with any conditions that affect your sleep? <span class="optional">optional</span></label><input id="sleepCondition" type="text" maxlength="180" placeholder="Leave blank if none / prefer not to answer" /></div><div class="field"><label for="musicHours">How many hours a week do you participate in music training?</label><input id="musicHours" type="number" min="0" max="80" step="0.5" placeholder="e.g., 5" /></div><div class="field"><label for="studyMusicFreq">How often do you listen to music while studying or doing homework?</label><select id="studyMusicFreq"><option value="">Choose…</option><option value="1">Never</option><option value="2">Rarely</option><option value="3">Sometimes</option><option value="4">Often</option><option value="5">Almost always</option></select></div>
         </div>
         <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-action="demo-next">Continue</button></div>
       </section>
@@ -79,22 +79,20 @@
 
       <section class="page" data-page="4">
         <h2>Why you listen to music</h2>
-        <div class="notice soft"><strong>Research note</strong><p>These items are an exploratory music-use section created for this study. They are <em>not</em> labeled as a validated clinical scale. If your mentor approves a licensed/validated music-motives scale, replace this section before launch.</p></div>
-        <p>How often is each of the following a reason you choose to listen to music?</p>
-        <div id="motiveItems" class="scale-list"></div>
-        <div class="field"><label for="topReason">Which is usually your main reason for listening to music? <span class="optional">optional</span></label>
-          <select id="topReason"><option value="">Choose…</option><option value="enjoyment">Enjoyment / entertainment</option><option value="relax">Relaxation / calming down</option><option value="mood">Improving my mood</option><option value="stress">Coping with stress or difficult feelings</option><option value="focus">Helping me focus</option><option value="energy">Increasing energy or motivation</option><option value="emotional_processing">Thinking through or expressing feelings</option><option value="social">Connecting with other people</option><option value="habit">Habit / background sound</option><option value="other">Other</option></select>
+        
+        <div class="field"><label for="topReason">Which is usually your main reason for listening to music?</label>
+          <select id="topReason"><option value="">Choose…</option><option value="enjoyment">Enjoyment / entertainment</option><option value="relax">Relaxation / calming down</option><option value="mood">Improving my mood</option><option value="stress">Coping with stress or difficult feelings</option><option value="focus">Helping me focus</option><option value="energy">Increasing energy or motivation</option><option value="emotional_processing">Thinking through or expressing feelings</option><option value="social">Connecting with other people</option><option value="habit">Habit / background sound</option><option value="other">Other</option></select><input id="topReasonOther" type="text" maxlength="150" placeholder="If Other, please specify" />
         </div>
-        <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-action="scale-next" data-scale="motives">Continue</button></div>
+        <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-action="motive-next">Continue</button></div>
       </section>
 
       <section class="page" data-page="5">
         <h2>Choose your music</h2>
         <p>Choose music you <strong>enjoy and would normally consider listening to while doing something that requires concentration</strong>, such as homework, reading, drawing, or another focused activity.</p>
-        <div class="notice"><p>Have about 5 minutes of music ready. Do not enter a song title or artist. Start playback only when the study tells you to.</p></div>
+        <div class="notice"><p>Have about 5 minutes of music ready. You may specify a song if you choose Other / unsure for genre. Start playback only when the study tells you to.</p></div>
         <div class="grid2">
-          <div class="field"><label for="lyrics">Does your selected music have lyrics?</label><select id="lyrics"><option value="">Choose…</option><option value="instrumental">No, instrumental</option><option value="lyrics_understand">Yes, and I understand the language</option><option value="lyrics_not_understand">Yes, but I do not understand the language</option><option value="mixed">Mixed / playlist</option></select></div>
-          <div class="field"><label for="genre">Broad genre <span class="optional">descriptive only</span></label><select id="genre"><option value="">Choose…</option><option>Pop</option><option>Rock / alternative</option><option>Hip-hop / rap</option><option>R&B / soul</option><option>Electronic</option><option>Classical</option><option>Jazz</option><option>Soundtrack / game / anime</option><option>Country / folk</option><option>Multiple / mixed</option><option>Other / unsure</option></select></div>
+          <div class="field"><label for="lyrics">Does your selected music have lyrics?</label><select id="lyrics"><option value="">Choose…</option><option value="instrumental">No, instrumental</option><option value="lyrics_understand">Yes, and I understand the language</option><option value="lyrics_not_understand">Yes, but I do not understand the language</option></select></div>
+          <div class="field"><label for="genre">Broad genre <span class="optional">descriptive only</span></label><select id="genre"><option value="">Choose…</option><option>Pop</option><option>Rock / alternative</option><option>Hip-hop / rap</option><option>R&B / soul</option><option>Electronic</option><option>Classical</option><option>Jazz</option><option>Soundtrack / game / anime</option><option>Country / folk</option><option>Other / unsure</option></select><input id="genreOther" type="text" maxlength="150" placeholder="If Other / unsure, what song is it?" /></div>
           <div class="field"><label for="familiarity">How familiar are you with this music?</label><input id="familiarity" type="range" min="1" max="5" value="3" /><div class="range-labels"><span>Not familiar</span><span>Very familiar</span></div></div>
           <div class="field"><label for="liking">How much do you like this music?</label><input id="liking" type="range" min="1" max="5" value="3" /><div class="range-labels"><span>Not much</span><span>Very much</span></div></div>
           <div class="field"><label for="energy">How energetic does it feel?</label><input id="energy" type="range" min="1" max="5" value="3" /><div class="range-labels"><span>Very calm</span><span>Very energetic</span></div></div>
@@ -108,7 +106,7 @@
         <h2>2-back practice</h2>
         <p>Letters will appear one at a time. Press the <kbd>M</kbd> key whenever the current letter is the same as the letter shown <strong>two letters earlier</strong>. If it does not match, do not press anything.</p>
         <div class="example"><span>A</span><span>B</span><span class="match">A</span><p>Press M on the third letter.</p></div>
-        <p>Try to be accurate while responding promptly. You will complete a short practice first.</p>
+        <p>The + between letters is a fixation marker, not part of the sequence. You can press M while the letter or + is shown, until the next letter appears. Try to be accurate while responding promptly. You will complete a short practice first.</p>
         <div class="actions"><button class="secondary" data-prev>Back</button><button class="primary" data-action="practice">Start practice</button></div>
       </section>
 
@@ -116,12 +114,12 @@
         <div id="taskIntro">
           <h2 id="conditionTitle">Task block</h2>
           <div id="conditionInstructions" class="notice"></div>
-          <div class="actions"><button class="primary" data-action="start-condition">I’m ready</button></div>
+          <div class="actions"><button class="primary" id="blockStartButton">I’m ready</button></div>
         </div>
         <div id="taskArea" class="task-area hidden" tabindex="0" aria-label="2-back task">
-          <div id="taskStatus" class="task-status">Get ready…</div>
+          <div id="taskStatus" class="task-status">Get ready…</div><div id="trialProgress" class="subtle" aria-live="off"></div>
           <div id="stimulus" class="stimulus">+</div>
-          <div class="task-hint">Press <kbd>M</kbd> only for a 2-back match</div>
+          <div class="task-hint">Press <kbd>M</kbd> only for a 2-back match. The + is a focus marker, not a letter.</div>
         </div>
       </section>
 
