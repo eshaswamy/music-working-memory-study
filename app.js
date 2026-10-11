@@ -34,7 +34,7 @@
 
   document.addEventListener("click", async e => {
     const b = e.target.closest("button"); if(!b) return;
-    if(b.hasAttribute("data-prev")) return go(page-1);
+    if(b.hasAttribute("data-prev")) { if(taskRunning)return; return go(page-1); }
     if(b.hasAttribute("data-next")) {
       const id=b.dataset.require; if(id && !document.getElementById(id).checked) return alert("Please confirm before continuing.");
       if(id==="assent") state.responses.student_assent = true;
@@ -47,13 +47,14 @@
     if(a==="motive-next") return motiveNext();
     if(a==="music-next") return musicNext();
     if(a==="practice") return runPractice();
+    if(a==="music-leadin") return beginMusicLeadIn();
 
     if(a==="second-condition") return prepareCondition(1);
     if(a==="submit-study") return submitStudy();
   });
 
-  function go(n){ if(n<0||n>10)return; document.querySelector(`.page[data-page="${page}"]`)?.classList.remove("active"); page=n; document.querySelector(`.page[data-page="${page}"]`)?.classList.add("active"); updateProgress(); window.scrollTo({top:0,behavior:"smooth"}); }
-  function updateProgress(){ document.getElementById("progressText").textContent=`Step ${Math.min(page+1,11)} of 11`; document.getElementById("progressBar").style.width=`${((page+1)/11)*100}%`; }
+  function go(n){ if(n<0||n>11)return; document.querySelector(`.page[data-page="${page}"]`)?.classList.remove("active"); page=n; document.querySelector(`.page[data-page="${page}"]`)?.classList.add("active"); updateProgress(); window.scrollTo({top:0,behavior:"smooth"}); }
+  function updateProgress(){ document.getElementById("progressText").textContent=`Step ${Math.min(page+1,12)} of 12`; document.getElementById("progressBar").style.width=`${((page+1)/12)*100}%`; }
 
   function beginStudy(){
     const s=document.getElementById("accessStatus");
@@ -68,9 +69,9 @@
   }
 
   function demographicsNext(){
-    const req=["age","grade","gender","sleepHours","musicTraining","musicHours","studyMusicFreq"]; if(req.some(id=>!val(id))) return alert("Please answer the required questions before continuing.");
+    const req=["age","grade","gender","country","sleepHours","musicTraining","musicHours","studyMusicFreq"]; if(req.some(id=>!val(id))) return alert("Please answer the required questions before continuing.");
     if(Number(val("sleepHours"))<2 || Number(val("sleepHours"))>12) return alert("Sleep hours must be between 2 and 12.");
-    Object.assign(state.responses,{age:val("age"),grade:val("grade"),gender:val("gender"),sleep_hours:Number(val("sleepHours")),sleep_condition:val("sleepCondition"),music_training:val("musicTraining"),music_training_hours:Number(val("musicHours")),study_music_frequency:Number(val("studyMusicFreq"))}); go(2);
+    Object.assign(state.responses,{age:val("age"),grade:val("grade"),gender:val("gender"),country:val("country").trim(),sleep_hours:Number(val("sleepHours")),sleep_condition:val("sleepCondition"),music_training:val("musicTraining"),music_training_hours:Number(val("musicHours")),study_music_frequency:Number(val("studyMusicFreq"))}); go(2);
   }
 
   function scaleNext(which){
@@ -88,18 +89,18 @@
   }
 
   function musicNext(){
-    const req=["lyrics","genre","typicalStudyMusic"]; if(req.some(id=>!val(id))) return alert("Please answer the required music questions.");
-    if(val("genre")==="Other / unsure" && !val("genreOther").trim()) return alert("Please specify the song for Other / unsure.");
-    Object.assign(state.responses,{music_genre_other:val("genre")==="Other / unsure"?val("genreOther").trim():"",music_lyrics:val("lyrics"),music_genre:val("genre"),music_familiarity:Number(val("familiarity")),music_liking:Number(val("liking")),music_energy:Number(val("energy")),music_valence:Number(val("valence")),typical_study_music:val("typicalStudyMusic")});go(6);
+    const req=["lyrics","genre","familiarity"]; if(req.some(id=>!val(id))) return alert("Please answer the required music questions.");
+
+    Object.assign(state.responses,{music_lyrics:val("lyrics"),music_genre:val("genre"),music_familiarity:Number(val("familiarity"))});go(6);
   }
 
   let taskRunning=false;
   async function runPractice(){
     if(taskRunning) return;
     taskRunning=true;
-    go(7); showTask();
+    go(8); showTask();
     try {
-      const seq=generateSequence(C.practiceTrials,.28,"P");
+      const seq=FIXED_SEQUENCES.P;
       const result=await runNback(seq,{practice:true,condition:"practice",form:"P"});
       hideTask();
       document.getElementById("conditionTitle").textContent="Practice complete";
@@ -107,7 +108,7 @@
       setBlockButton("Continue to block 1",()=>prepareCondition(0));
     } finally {taskRunning=false;}
   }
-  function showTask(){document.getElementById("taskIntro").classList.add("hidden");document.getElementById("taskArea").classList.remove("hidden");}
+  function showTask(){document.getElementById("taskIntro").classList.add("hidden");document.getElementById("taskArea").classList.remove("hidden");document.getElementById("taskArea").focus();}
   function hideTask(){document.getElementById("taskArea").classList.add("hidden");document.getElementById("taskIntro").classList.remove("hidden");}
   function setBlockButton(label,callback){
     const b=document.getElementById("blockStartButton");
@@ -115,57 +116,69 @@
     b.onclick=callback;
   }
   function prepareCondition(index){
-    state.currentIndex=index;const condition=order[index];go(7);hideTask();
-    document.getElementById("conditionTitle").textContent=`Block ${index+1} of 2 — ${condition==="music"?"Music":"Silence"}`;
-    document.getElementById("conditionInstructions").innerHTML=condition==="music"
-      ? `<p><strong>Start playing your chosen music now</strong> on your usual player. Return to this tab and keep the music playing. Wear headphones/earbuds at a comfortable volume.</p><p>After pressing the button below, there will be a 30-second music lead-in, followed by the letter task. Do not pause music until this block ends.</p>`
-      : `<p><strong>Pause all music and other audio now.</strong> Keep your headphones/earbuds on. After pressing the button below, there will be a short countdown, then the letter task.</p>`;
-    setBlockButton(condition==="music"?"Music is playing — begin lead-in":"Audio is paused — begin block",()=>runCurrentCondition());
+    if(taskRunning) return;
+    state.currentIndex=index;
+    const condition=order[index];
+    if(condition==="music") {
+      // Music can only begin after the separate lead-in screen.
+      go(7);
+      return;
+    }
+    go(8);hideTask();
+    document.getElementById("conditionTitle").textContent=`Block ${index+1} of 2 — Silence`;
+    document.getElementById("conditionInstructions").innerHTML=`<p><strong>PAUSE ALL MUSIC BEFORE STARTING.</strong> Keep your music paused throughout this block. Press SPACE only when a letter matches the letter TWO positions earlier. The + is not a letter.</p>`;
+    setBlockButton("My music is paused — start 25 letters",()=>runCurrentCondition());
   }
+  async function beginMusicLeadIn(){
+    if(taskRunning || order[state.currentIndex]!=="music")return;taskRunning=true;
+    const button=document.querySelector('[data-action="music-leadin"]');button.disabled=true;
+    try { for(let remaining=20;remaining>0;remaining--){button.textContent=`Listen to your music… ${remaining}s`;await sleep(1000);} }
+    finally {taskRunning=false;button.disabled=false;button.textContent="My music is playing — continue";}
+    go(8);hideTask();
+    document.getElementById("conditionTitle").textContent=`Block ${state.currentIndex+1} of 2 — Music`;
+    document.getElementById("conditionInstructions").innerHTML=`<p><strong>Keep your music playing.</strong> Press SPACE for a match with the letter TWO positions back. Click below to begin the 25-letter block.</p>`;
+    setBlockButton("My music is still playing — start letters",()=>runCurrentCondition());
+  }
+
   async function runCurrentCondition(){
-    if(taskRunning)return;taskRunning=true;
+    if(taskRunning || state.currentIndex===undefined || state.nback[order[state.currentIndex]]!==null)return;taskRunning=true;
     const index=state.currentIndex,condition=order[index],form=forms[index];showTask();
     try {
       document.getElementById("stimulus").textContent="+";
-      if(condition==="music"){
-        for(let s=30;s>0;s--){document.getElementById("taskStatus").textContent=`Music lead-in: ${s}s`;await sleep(1000);}
-      } else {document.getElementById("taskStatus").textContent="Starting silence block…";await sleep(2500);}
-      const seq=generateSequence(C.testTrials,C.targetRate,form);
+      document.getElementById("taskStatus").textContent="Get ready for the letters…";
+      await sleep(1500);
+      const seq=FIXED_SEQUENCES[form];
       state.nback[condition]=await runNback(seq,{practice:false,condition,form});
       hideTask();
       if(index===0){
-        go(8);const next=order[1];
+        go(9);const next=order[1];
         document.getElementById("secondConditionPreview").innerHTML=`<p><strong>Block 1 finished.</strong> ${condition==="music"?"Pause your music now.":"Remain in silence for the break."}</p><p>Block 2 will be <strong>${next==="music"?"with your selected music":"in silence"}</strong>. The next screen will tell you when to start or pause playback.</p>`;
-      } else {go(9);}
+      } else {go(10);}
     } finally {taskRunning=false;}
   }
-  function generateSequence(n,targetRate,form){
-    const letters=(form==="B"?["F","H","J","K","L","N","P","R","T","V","X","Z"]:["B","C","D","G","M","Q","S","W","Y","F","K","R"]);
-    const eligible=Array.from({length:Math.max(0,n-2)},(_,i)=>i+2);
-    const exactTargets=Math.max(1,Math.round(eligible.length*targetRate));
-    for(let i=eligible.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[eligible[i],eligible[j]]=[eligible[j],eligible[i]];}
-    const targetSet=new Set(eligible.slice(0,exactTargets));
-    const seq=[];
-    for(let i=0;i<n;i++){
-      const isTarget=targetSet.has(i); let letter;
-      if(isTarget) letter=seq[i-2].letter;
-      else { do{letter=letters[Math.floor(Math.random()*letters.length)]}while(i>=2 && letter===seq[i-2].letter); }
-      seq.push({letter,target:isTarget});
-    }
-    return seq;
+  // Fixed, prechecked sequences: every participant receives identical practice.
+  // A and B are two fixed 25-trial forms, each with exactly 6 targets.
+  // Form assignment and music/silence order are independently counterbalanced.
+  // Do not use the same scored sequence twice for a participant: repetition can create learning effects.
+  const FIXED_SEQUENCES = Object.freeze({
+    P: makeFixedSequence("NGNSCDCZ"),
+    A: makeFixedSequence("VLXLPGSGBRWRLVKVZBGBVRHRP"),
+    B: makeFixedSequence("CWGXGJSRSXMGMMFLFTPLPFNNN")
+  });
+  function makeFixedSequence(letters) {
+    return Object.freeze([...letters].map((letter,i,arr)=>Object.freeze({letter,target:i>=2&&letter===arr[i-2]})));
   }
-
   async function runNback(seq,{practice,condition,form}){
     const stim=document.getElementById("stimulus"), status=document.getElementById("taskStatus"); const rows=[]; let pressed=false, pressAt=null, accept=false, trialStart=0;
-    const keyHandler=e=>{ if(!accept||pressed||e.repeat||e.key.toLowerCase()!=="m")return; e.preventDefault(); pressed=true;pressAt=performance.now(); };
+    const keyHandler=e=>{ if(!accept||pressed||e.repeat||e.code!=="Space")return; e.preventDefault(); pressed=true;pressAt=performance.now(); };
     window.addEventListener("keydown",keyHandler);
-    status.textContent=practice?"Practice — press M for a match":"Press M for a 2-back match"; stim.textContent="+"; await sleep(1200);
+    status.textContent=practice?"Practice — press SPACE for a match":"Press SPACE for a 2-back match"; stim.textContent="+"; await sleep(1200);
     for(let i=0;i<seq.length;i++){
       pressed=false;pressAt=null;accept=true;trialStart=performance.now(); stim.textContent=seq[i].letter; document.getElementById("trialProgress").textContent=`${practice?"Practice":condition==="music"?"Music block":"Silence block"}: letter ${i+1} of ${seq.length}`;
       await sleep(C.stimulusMs); stim.textContent="+"; await sleep(Math.max(0,C.trialMs-C.stimulusMs)); accept=false;
       const target=seq[i].target, hit=target&&pressed, miss=target&&!pressed, fa=!target&&pressed, correct=hit||(!target&&!pressed), rt=pressed?Math.round(pressAt-trialStart):null;
       const row={participant_id:participantId,condition,form,trial:i+1,letter:seq[i].letter,target:Number(target),pressed:Number(pressed),correct:Number(correct),hit:Number(hit),miss:Number(miss),false_alarm:Number(fa),rt_ms:rt}; rows.push(row); if(!practice)state.trials.push(row);
-      if(practice){status.textContent=correct?"Correct":"Not quite";status.className=`task-status ${correct?"flash-good":"flash-bad"}`;await sleep(250);status.className="task-status";status.textContent="Practice — press M for a match";}
+      if(practice){status.textContent=correct?"Correct":"Not quite";status.className=`task-status ${correct?"flash-good":"flash-bad"}`;await sleep(250);status.className="task-status";status.textContent="Practice — press SPACE for a match";}
     }
     window.removeEventListener("keydown",keyHandler); stim.textContent="✓"; await sleep(500); return summarize(rows);
   }
@@ -176,13 +189,15 @@
     return {n_trials:rows.length,targets,nontargets,hits,misses,false_alarms:fas,accuracy:correct/rows.length,hit_rate:hits/Math.max(1,targets),false_alarm_rate:fas/Math.max(1,nontargets),median_hit_rt_ms:median(hitRts),dprime};
   }
 
+  let submitting=false;
   async function submitStudy(){
+    if(submitting)return;
     const required=["interruptions","headphones","technicalIssue"]; if(required.some(id=>!val(id))) return alert("Please answer the required post-task questions.");
     Object.assign(state.responses,{music_distraction:Number(val("musicDistract")),music_help_concentration:Number(val("musicHelp")),music_volume:Number(val("volume")),interruptions:val("interruptions"),environment_distraction:Number(val("envDistract")),headphones:val("headphones"),technical_issue:val("technicalIssue")});
     state.completedAt=new Date().toISOString(); state.studyVersion=C.STUDY_VERSION; state.condition_order=order.join("_then_"); state.form_order=forms.join("_then_"); state.music_minus_silence_dprime=state.nback.music.dprime-state.nback.silence.dprime; state.music_minus_silence_accuracy=state.nback.music.accuracy-state.nback.silence.accuracy; state.music_minus_silence_rt=nullableSubtract(state.nback.music.median_hit_rt_ms,state.nback.silence.median_hit_rt_ms);
     const s=document.getElementById("submitStatus"); if(!apiConfigured()){s.textContent="Researcher setup is incomplete: the Google Apps Script URL has not been configured.";s.className="status error";return;}
-    s.textContent="Submitting… please keep this tab open.";s.className="status";
-    try{const r=await post({action:"submitStudy",payload:state});if(!r.ok)throw new Error(r.message||"Submission failed");s.textContent="Submitted.";s.className="status ok";setTimeout(()=>go(10),300)}catch(err){s.textContent="Your data were not submitted. Please check your connection and try again. No research responses have been saved in your browser.";s.className="status error";}
+    s.textContent="Submitting… please keep this tab open.";s.className="status";submitting=true;
+    try{const r=await post({action:"submitStudy",payload:state});if(!r.ok)throw new Error(r.message||"Submission failed");s.textContent="Submitted.";s.className="status ok";setTimeout(()=>go(11),300)}catch(err){s.textContent="Your data were not submitted. Please check your connection and try again. No research responses have been saved in your browser.";s.className="status error";}
   }
 
   function renderScale(container,prefix,items,labels){ const el=document.getElementById(container); items.forEach((text,i)=>{const d=document.createElement("div");d.className="scale-item";d.innerHTML=`<div class="q">${i+1}. ${escapeHtml(text)}</div><div class="choices">${labels.map((lab,j)=>`<div class="choice"><input id="${prefix}_${i}_${j}" type="radio" name="${prefix}_${i}" value="${j}"><label for="${prefix}_${i}_${j}">${escapeHtml(lab)}</label></div>`).join("")}</div>`;el.appendChild(d)}) }
