@@ -1,6 +1,6 @@
 window.STUDY_CONFIG = {
   // Deploy the included Google Apps Script as a Web App, then paste its /exec URL here.
-  API_URL: "PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
+  API_URL: "https://script.google.com/macros/s/AKfycbwgMwZZuDpS91atUF1fMKntWM8bVToradVhGXatoKhXClxRhYDpHs4ScMOE52ex2akM/exec",
 
   // Task parameters. Pilot before changing.
   practiceTrials: 8,
