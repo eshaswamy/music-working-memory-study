@@ -85,7 +85,7 @@
   function motiveNext(){
     if(!val("topReason")) return alert("Please select your main reason for listening to music.");
     if(val("topReason")==="other" && !val("topReasonOther").trim()) return alert("Please specify your other reason.");
-    state.responses.music_top_reason=val("topReason"); state.responses.music_top_reason_other=val("topReason")==="other"?val("topReasonOther").trim():""; go(5);
+    state.responses.music_top_reason=val("topReason"); state.responses.music_top_reason_other=val("topReason")==="other"?val("topReasonOther").trim():""; go(6);
   }
 
   function musicNext(){
@@ -104,7 +104,7 @@
       const result=await runNback(seq,{practice:true,condition:"practice",form:"P"});
       hideTask();
       document.getElementById("conditionTitle").textContent="Practice complete";
-      document.getElementById("conditionInstructions").innerHTML=`<p>Practice accuracy: <strong>${Math.round(result.accuracy*100)}%</strong>.</p><p>Next: two separate scored blocks. The order is randomized. Follow the music/silence instructions for each block. There is no feedback during scored trials.</p>`;
+      document.getElementById("conditionInstructions").innerHTML=`<p>Practice accuracy: <strong>${Math.round(100*result.correct/result.n_trials)}%</strong>.</p><p>Next: two separate scored blocks. The order is randomized. Follow the music/silence instructions for each block. There is no feedback during scored trials.</p>`;
       setBlockButton("Continue to block 1",()=>prepareCondition(0));
     } finally {taskRunning=false;}
   }
@@ -120,8 +120,8 @@
     state.currentIndex=index;
     const condition=order[index];
     if(condition==="music") {
-      // Music can only begin after the separate lead-in screen.
-      go(7);
+      // Choose music immediately before the music condition, even when it is block two.
+      go(5);
       return;
     }
     go(8);hideTask();
@@ -177,7 +177,7 @@
       pressed=false;pressAt=null;accept=true;trialStart=performance.now(); stim.textContent=seq[i].letter; document.getElementById("trialProgress").textContent=`${practice?"Practice":condition==="music"?"Music block":"Silence block"}: letter ${i+1} of ${seq.length}`;
       await sleep(C.stimulusMs); stim.textContent="+"; await sleep(Math.max(0,C.trialMs-C.stimulusMs)); accept=false;
       const target=seq[i].target, hit=target&&pressed, miss=target&&!pressed, fa=!target&&pressed, correct=hit||(!target&&!pressed), rt=pressed?Math.round(pressAt-trialStart):null;
-      const row={participant_id:participantId,condition,form,trial:i+1,letter:seq[i].letter,target:Number(target),pressed:Number(pressed),correct:Number(correct),hit:Number(hit),miss:Number(miss),false_alarm:Number(fa),rt_ms:rt}; rows.push(row); if(!practice)state.trials.push(row);
+      const row={participant_id:participantId,condition,form,trial:i+1,letter:seq[i].letter,target:Number(target),pressed:Number(pressed),correct:Number(correct),hit:Number(hit),miss:Number(miss),false_alarm:Number(fa),rt_ms:rt}; rows.push(row); state.trials.push(row);
       if(practice){status.textContent=correct?"Correct":"Not quite";status.className=`task-status ${correct?"flash-good":"flash-bad"}`;await sleep(250);status.className="task-status";status.textContent="Practice — press SPACE for a match";}
     }
     window.removeEventListener("keydown",keyHandler); stim.textContent="✓"; await sleep(500); return summarize(rows);
@@ -185,8 +185,7 @@
 
   function summarize(rows){
     const targets=rows.filter(r=>r.target===1).length, nontargets=rows.length-targets, hits=rows.filter(r=>r.hit===1).length, misses=rows.filter(r=>r.miss===1).length, fas=rows.filter(r=>r.false_alarm===1).length, correct=rows.filter(r=>r.correct===1).length, hitRts=rows.filter(r=>r.hit===1&&r.rt_ms>0).map(r=>r.rt_ms).sort((a,b)=>a-b);
-    const h=(hits+.5)/(targets+1), fa=(fas+.5)/(nontargets+1), dprime=invNorm(h)-invNorm(fa);
-    return {n_trials:rows.length,targets,nontargets,hits,misses,false_alarms:fas,accuracy:correct/rows.length,hit_rate:hits/Math.max(1,targets),false_alarm_rate:fas/Math.max(1,nontargets),median_hit_rt_ms:median(hitRts),dprime};
+    return {n_trials:rows.length,targets,nontargets,hits,misses,false_alarms:fas,correct};
   }
 
   let submitting=false;
@@ -194,7 +193,7 @@
     if(submitting)return;
     const required=["interruptions","headphones","technicalIssue"]; if(required.some(id=>!val(id))) return alert("Please answer the required post-task questions.");
     Object.assign(state.responses,{music_distraction:Number(val("musicDistract")),music_help_concentration:Number(val("musicHelp")),music_volume:Number(val("volume")),interruptions:val("interruptions"),environment_distraction:Number(val("envDistract")),headphones:val("headphones"),technical_issue:val("technicalIssue")});
-    state.completedAt=new Date().toISOString(); state.studyVersion=C.STUDY_VERSION; state.condition_order=order.join("_then_"); state.form_order=forms.join("_then_"); state.music_minus_silence_dprime=state.nback.music.dprime-state.nback.silence.dprime; state.music_minus_silence_accuracy=state.nback.music.accuracy-state.nback.silence.accuracy; state.music_minus_silence_rt=nullableSubtract(state.nback.music.median_hit_rt_ms,state.nback.silence.median_hit_rt_ms);
+    state.completedAt=new Date().toISOString(); state.studyVersion=C.STUDY_VERSION; state.condition_order=order.join("_then_"); state.form_order=forms.join("_then_"); 
     const s=document.getElementById("submitStatus"); if(!apiConfigured()){s.textContent="Researcher setup is incomplete: the Google Apps Script URL has not been configured.";s.className="status error";return;}
     s.textContent="Submitting… please keep this tab open.";s.className="status";submitting=true;
     try{const r=await post({action:"submitStudy",payload:state});if(!r.ok)throw new Error(r.message||"Submission failed");s.textContent="Submitted.";s.className="status ok";setTimeout(()=>go(11),300)}catch(err){s.textContent="Your data were not submitted. Please check your connection and try again. No research responses have been saved in your browser.";s.className="status error";}
@@ -206,6 +205,4 @@
   function apiConfigured(){return C.API_URL && !C.API_URL.includes("PASTE_")}
   async function post(data){const r=await fetch(C.API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data),redirect:"follow"});const text=await r.text();try{return JSON.parse(text)}catch{return {ok:false,message:"Unexpected server response"}}}
   function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}
-  // Acklam-style inverse normal approximation, adequate for d-prime scoring after log-linear correction.
-  function invNorm(p){if(p<=0||p>=1)return NaN;const a=[-39.69683028665376,220.9460984245205,-275.9285104469687,138.357751867269,-30.66479806614716,2.506628277459239],b=[-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572],c=[-.007784894002430293,-.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],d=[.007784695709041462,.3224671290700398,2.445134137142996,3.754408661907416],pl=.02425,ph=1-pl;let q,r;if(p<pl){q=Math.sqrt(-2*Math.log(p));return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}if(p>ph){q=Math.sqrt(-2*Math.log(1-p));return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}q=p-.5;r=q*q;return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1)}
 })();

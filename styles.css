@@ -14,3 +14,5 @@
 #trialProgress{font-size:17px;font-weight:650}
 #blockStartButton{font-size:19px;padding:17px 23px}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid #2639bb;outline-offset:3px}
+
+.quick-facts{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 26px}.quick-facts span{padding:9px 13px;border:1px solid #d7ddf3;border-radius:999px;background:#f7f8ff;font-size:14px;font-weight:700}.prose-box h3{margin-top:25px;margin-bottom:7px}.prose-box p,.prose-box li{line-height:1.65}.prose-box ul{padding-left:22px}.prose-box li{margin:6px 0}#sleepHours{max-width:100%}

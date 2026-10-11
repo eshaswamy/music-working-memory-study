@@ -1,6 +1,6 @@
 window.STUDY_CONFIG = {
   // Deploy the included Google Apps Script as a Web App, then paste its /exec URL here.
-  API_URL: "https://script.google.com/macros/s/AKfycbwgMwZZuDpS91atUF1fMKntWM8bVToradVhGXatoKhXClxRhYDpHs4ScMOE52ex2akM/exec",
+  API_URL: "PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
 
   // Task parameters. Pilot before changing.
   practiceTrials: 8,
@@ -11,5 +11,5 @@ window.STUDY_CONFIG = {
   preBlockMusicMs: 20000,
 
   // Human-readable study version saved with every row.
-  STUDY_VERSION: "music-focus-memory-v10"
+  STUDY_VERSION: "music-mood-memory-v12"
 };
