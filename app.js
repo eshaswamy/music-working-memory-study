@@ -144,10 +144,15 @@
 
   async function runCurrentCondition(){
     if(taskRunning || state.currentIndex===undefined || state.nback[order[state.currentIndex]]!==null)return;taskRunning=true;
-    const index=state.currentIndex,condition=order[index],form=forms[index];showTask();
+    const index=state.currentIndex,condition=order[index],form=forms[index];
+    // Set the scored-block labels before revealing the task; never display stale practice text.
+    document.getElementById("taskStatus").textContent=`Block ${index+1} of 2 — ${condition==="music"?"Music":"Silence"}: get ready…`;
+    document.getElementById("trialProgress").textContent=`${condition==="music"?"Music":"Silence"} block — starting`;
+    document.getElementById("stimulus").textContent="+";
+    showTask();
     try {
       document.getElementById("stimulus").textContent="+";
-      document.getElementById("taskStatus").textContent="Get ready for the letters…";
+      document.getElementById("taskStatus").textContent=`${condition==="music"?"Music":"Silence"} block — get ready for the letters…`;
       await sleep(1500);
       const seq=FIXED_SEQUENCES[form];
       state.nback[condition]=await runNback(seq,{practice:false,condition,form});
@@ -174,7 +179,7 @@
     const stim=document.getElementById("stimulus"), status=document.getElementById("taskStatus"); const rows=[]; let pressed=false, pressAt=null, accept=false, trialStart=0;
     const keyHandler=e=>{ if(!accept||pressed||e.repeat||e.code!=="Space")return; e.preventDefault(); pressed=true;pressAt=performance.now(); };
     window.addEventListener("keydown",keyHandler);
-    status.textContent=practice?"Practice — press SPACE for a match":"Press SPACE for a 2-back match"; stim.textContent="+"; await sleep(1200);
+    status.textContent=practice?"Practice — press SPACE for a match":`${condition==="music"?"Music":"Silence"} block — press SPACE for a 2-back match`; stim.textContent="+"; await sleep(1200);
     for(let i=0;i<seq.length;i++){
       pressed=false;pressAt=null;accept=true;trialStart=performance.now(); stim.textContent=seq[i].letter; document.getElementById("trialProgress").textContent=`${practice?"Practice":condition==="music"?"Music block":"Silence block"}: letter ${i+1} of ${seq.length}`;
       await sleep(C.stimulusMs); stim.textContent="+"; await sleep(Math.max(0,C.trialMs-C.stimulusMs)); accept=false;
