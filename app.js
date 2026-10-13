@@ -34,7 +34,7 @@
 
   document.addEventListener("click", async e => {
     const b = e.target.closest("button"); if(!b) return;
-    if(b.hasAttribute("data-prev")) { if(taskRunning)return; return go(page-1); }
+    if(b.hasAttribute("data-prev")) { if(taskRunning || page>=5)return; return go(page-1); }
     if(b.hasAttribute("data-next")) {
       const id=b.dataset.require; if(id && !document.getElementById(id).checked) return alert("Please confirm before continuing.");
       if(id==="assent") state.responses.student_assent = true;
@@ -89,19 +89,21 @@
   }
 
   function musicNext(){
-    const req=["lyrics","genre","familiarity"]; if(req.some(id=>!val(id))) return alert("Please answer the required music questions.");
+    if(state.currentIndex===undefined || order[state.currentIndex]!=="music")return;
+    const req=["lyrics","genre"]; if(req.some(id=>!val(id))) return alert("Please answer the required music questions.");
 
-    Object.assign(state.responses,{music_lyrics:val("lyrics"),music_genre:val("genre"),music_familiarity:Number(val("familiarity"))});go(6);
+    Object.assign(state.responses,{music_lyrics:val("lyrics"),music_genre:val("genre")});go(7);
   }
 
   let taskRunning=false;
   async function runPractice(){
-    if(taskRunning) return;
+    if(taskRunning || state.practiceDone) return;
     taskRunning=true;
     go(8); showTask();
     try {
       const seq=FIXED_SEQUENCES.P;
       const result=await runNback(seq,{practice:true,condition:"practice",form:"P"});
+      state.practiceDone=true;
       hideTask();
       document.getElementById("conditionTitle").textContent="Practice complete";
       document.getElementById("conditionInstructions").innerHTML=`<p>Practice accuracy: <strong>${Math.round(100*result.correct/result.n_trials)}%</strong>.</p><p>Next: two separate scored blocks. The order is randomized. Follow the music/silence instructions for each block. There is no feedback during scored trials.</p>`;
@@ -116,7 +118,7 @@
     b.onclick=callback;
   }
   function prepareCondition(index){
-    if(taskRunning) return;
+    if(taskRunning || !state.practiceDone || index<0 || index>1 || (index===1 && state.nback[order[0]]===null)) return;
     state.currentIndex=index;
     const condition=order[index];
     if(condition==="music") {
@@ -152,7 +154,7 @@
       hideTask();
       if(index===0){
         go(9);const next=order[1];
-        document.getElementById("secondConditionPreview").innerHTML=`<p><strong>Block 1 finished.</strong> ${condition==="music"?"Pause your music now.":"Remain in silence for the break."}</p><p>Block 2 will be <strong>${next==="music"?"with your selected music":"in silence"}</strong>. The next screen will tell you when to start or pause playback.</p>`;
+        document.getElementById("secondConditionPreview").innerHTML=`<p><strong>Block 1 finished.</strong> ${condition==="music"?"Pause your music now.":"Remain in silence for the break."}</p><p>Block 2 will be <strong>${next==="music"?"with music you choose next":"in silence"}</strong>. The next screen will tell you when to start or pause playback.</p>`;
       } else {go(10);}
     } finally {taskRunning=false;}
   }
